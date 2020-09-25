@@ -1,4 +1,4 @@
-# AV Data Capture (CLI)
+# AV CLI (CLI)
 
 [启发项目 AV_Data_Capture](https://github.com/yoshiko2/AV_Data_Capture)
 
