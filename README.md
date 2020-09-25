@@ -37,7 +37,3 @@ When you run the software, you accept the following terms
 * ユーザーがこのソフトウェアを商業的および個人的な目的で使用することは固く禁じられています
 * このソフトウェアの作者yoshiko2は、最終決定および最終解釈の権利を留保します。
 * ユーザーが上記の条件のいずれかに同意しない場合は、このソフトウェアを使用しないでください
-
-# Telegram讨论群
-* [点击进群](https://t.me/joinchat/J54y1g3-a7nxJ_-WS4-KFQ)
-
