@@ -9,34 +9,21 @@ public class AvData implements Serializable {
     private String year;
     private String number;
     private String source;
-    private List<String> actorList;
+    private String time;
     private String release;
+    private String studio;
+    private String mainCover;
+    private String outline;
+    private List<String> actors;
     private List<String> labels;
     private List<String> tags;
     private List<String> covers;
-    private String mainCover;
-    private String outline;
-    private String director;
+    private List<String> series;
+    private List<String> directors;
     private List<String> magnets;
+    private String webSiteUrl;
+    private String previewVideo;
 
-    @Override
-    public String toString() {
-        return "AvData{" +
-                "title='" + title + '\'' +
-                ", year='" + year + '\'' +
-                ", number='" + number + '\'' +
-                ", source='" + source + '\'' +
-                ", actorList=" + actorList +
-                ", release='" + release + '\'' +
-                ", labels=" + labels +
-                ", tags=" + tags +
-                ", covers=" + covers +
-                ", mainCover='" + mainCover + '\'' +
-                ", outline='" + outline + '\'' +
-                ", director='" + director + '\'' +
-                ", magnets=" + magnets +
-                '}';
-    }
 
     public String getTitle() {
         return title;
@@ -74,12 +61,12 @@ public class AvData implements Serializable {
         return this;
     }
 
-    public List<String> getActorList() {
-        return actorList;
+    public List<String> getActors() {
+        return actors;
     }
 
-    public AvData setActorList(List<String> actorList) {
-        this.actorList = actorList;
+    public AvData setActors(List<String> actors) {
+        this.actors = actors;
         return this;
     }
 
@@ -137,12 +124,12 @@ public class AvData implements Serializable {
         return this;
     }
 
-    public String getDirector() {
-        return director;
+    public List<String> getDirectors() {
+        return directors;
     }
 
-    public AvData setDirector(String director) {
-        this.director = director;
+    public AvData setDirectors(List<String> directors) {
+        this.directors = directors;
         return this;
     }
 
@@ -153,5 +140,74 @@ public class AvData implements Serializable {
     public AvData setMagnets(List<String> magnets) {
         this.magnets = magnets;
         return this;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public AvData setTime(String time) {
+        this.time = time;
+        return this;
+    }
+
+    public List<String> getSeries() {
+        return series;
+    }
+
+    public AvData setSeries(List<String> series) {
+        this.series = series;
+        return this;
+    }
+
+    public String getStudio() {
+        return studio;
+    }
+
+    public AvData setStudio(String studio) {
+        this.studio = studio;
+        return this;
+    }
+
+    public String getWebSiteUrl() {
+        return webSiteUrl;
+    }
+
+    public AvData setWebSiteUrl(String webSiteUrl) {
+        this.webSiteUrl = webSiteUrl;
+        return this;
+    }
+
+    public String getPreviewVideo() {
+        return previewVideo;
+    }
+
+    public AvData setPreviewVideo(String previewVideo) {
+        this.previewVideo = previewVideo;
+        return this;
+    }
+
+    @Override
+    public String toString() {
+        return "AvData{" +
+                "title='" + title + '\'' +
+                ", year='" + year + '\'' +
+                ", number='" + number + '\'' +
+                ", source='" + source + '\'' +
+                ", time='" + time + '\'' +
+                ", release='" + release + '\'' +
+                ", studio='" + studio + '\'' +
+                ", mainCover='" + mainCover + '\'' +
+                ", outline='" + outline + '\'' +
+                ", actors=" + actors +
+                ", labels=" + labels +
+                ", tags=" + tags +
+                ", covers=" + covers +
+                ", series=" + series +
+                ", directors=" + directors +
+                ", magnets=" + magnets +
+                ", webSiteUrl='" + webSiteUrl + '\'' +
+                ", previewVideo='" + previewVideo + '\'' +
+                '}';
     }
 }
