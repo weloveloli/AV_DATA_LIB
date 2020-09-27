@@ -25,6 +25,6 @@ jobs:
       run: mvn -B package --file pom.xml
 
     - name: Publish to GitHub Packages Apache Maven
-      run: mvn versions:set -DnewVersion=${{ github.event.release.tag_name }} deploy -s $GITHUB_WORKSPACE/settings.xml
+      run: mvn versions:set -DnewVersion=${{ github.event.release.tag_name }}-RELEASE deploy -s $GITHUB_WORKSPACE/settings.xml
       env:
         GITHUB_TOKEN: ${{ github.token }}
