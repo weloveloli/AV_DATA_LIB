@@ -1,14 +1,8 @@
 package com.weloveloli.avlib;
 
-import com.weloveloli.avlib.tools.cache.CacheProvider;
-import com.weloveloli.avlib.tools.cache.impl.FileCacheProvider;
-import com.weloveloli.avlib.tools.connect.HtmlContentReader;
-import com.weloveloli.avlib.tools.connect.impl.DefaultHtmlContentReader;
-
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Optional;
+import java.net.Proxy;
+import java.util.Collections;
+import java.util.List;
 
 public class AVEnvironment {
 
@@ -22,10 +16,19 @@ public class AVEnvironment {
 
     private String ua;
 
-    private int timeoutInSeconds = 10;
+    private int timeoutInSeconds;
+
+    private String proxyType;
+
+    private List<String> proxyList;
 
     public AVEnvironment() {
         this.enableCache = false;
+        this.timeoutInSeconds = 10;
+        this.proxyType = "direct";
+        this.proxyList = Collections.emptyList();
+        this.enableCache = false;
+        this.cachePath = null;
     }
 
     public String getPluginPath() {
@@ -55,20 +58,6 @@ public class AVEnvironment {
         return this;
     }
 
-
-    public Path getCachePath() {
-        try {
-            return Optional.ofNullable(this.cachePath).map(Path::of).orElse(Files.createTempDirectory("av"));
-        } catch (IOException e) {
-            return null;
-        }
-    }
-
-    public AVEnvironment setCachePath(String cachePath) {
-        this.cachePath = cachePath;
-        return this;
-    }
-
     public boolean isEnableCache() {
         return enableCache;
     }
@@ -78,20 +67,43 @@ public class AVEnvironment {
         return this;
     }
 
-    public HtmlContentReader getHtmlContentReader() {
-        return new DefaultHtmlContentReader(this);
-    }
-
-    public CacheProvider getCacheProvider() {
-        return new FileCacheProvider(this.getCachePath());
-    }
-
     public String getUa() {
         return ua;
     }
 
     public AVEnvironment setUa(String ua) {
         this.ua = ua;
+        return this;
+    }
+
+    public String getProxyType() {
+        return proxyType;
+    }
+
+    public AVEnvironment setProxyType(String proxyType) {
+        this.proxyType = proxyType;
+        return this;
+    }
+
+    public List<String> getProxyList() {
+        return proxyList;
+    }
+
+    public AVEnvironment setProxyList(List<String> proxyList) {
+        this.proxyList = proxyList;
+        return this;
+    }
+
+    public boolean isProxyEnable() {
+        return this.getProxyType() != null && (this.getProxyType().equalsIgnoreCase(Proxy.Type.SOCKS.name()) || this.getProxyType().equalsIgnoreCase(Proxy.Type.HTTP.name())) && this.getProxyList() != null && this.getProxyList().size() >= 1;
+    }
+
+    public String getCachePath() {
+        return cachePath;
+    }
+
+    public AVEnvironment setCachePath(String cachePath) {
+        this.cachePath = cachePath;
         return this;
     }
 }
