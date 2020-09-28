@@ -68,8 +68,9 @@
             <url>https://maven.pkg.github.com/weloveloli/AV_cli</url>
         </repository>
     </distributionManagement>
-    <plugins>
-             <plugin>
+    <build>
+        <plugins>
+            <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <configuration>
@@ -91,6 +92,8 @@
                     </execution>
                 </executions>
             </plugin>
-         </plugins>
+        </plugins>
+    </build>
+
 
 </project>
