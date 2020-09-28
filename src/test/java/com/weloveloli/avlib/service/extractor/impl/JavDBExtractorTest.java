@@ -1,9 +1,7 @@
 package com.weloveloli.avlib.service.extractor.impl;
 
-import com.weloveloli.avlib.AVEnvironment;
 import com.weloveloli.avlib.BaseTestCase;
 import com.weloveloli.avlib.model.AvData;
-import com.weloveloli.avlib.service.AvServiceProvider;
 import com.weloveloli.avlib.service.connect.HtmlContentReader;
 import org.mockito.Mockito;
 
