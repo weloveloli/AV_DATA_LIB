@@ -1,4 +1,4 @@
-# AV CLI (CLI)
+# AV CLI
 
 ![Maven Package](https://github.com/weloveloli/AV_cli/workflows/Maven%20Package/badge.svg)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=weloveloli_AV_cli&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=weloveloli_AV_cli)
