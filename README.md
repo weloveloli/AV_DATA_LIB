@@ -1,3 +1,5 @@
+![Maven Package](https://github.com/weloveloli/AV_cli/workflows/Maven%20Package/badge.svg)
+
 # AV CLI (CLI)
 
 [启发项目 AV_Data_Capture](https://github.com/yoshiko2/AV_Data_Capture)
