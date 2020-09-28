@@ -1,9 +1,10 @@
-package com.weloveloli.avlib.extractor.impl;
+package com.weloveloli.avlib.service.extractor.impl;
 
 import com.weloveloli.avlib.AVEnvironment;
+import com.weloveloli.avlib.BaseTestCase;
 import com.weloveloli.avlib.model.AvData;
-import com.weloveloli.avlib.tools.connect.HtmlContentReader;
-import junit.framework.TestCase;
+import com.weloveloli.avlib.service.AvServiceProvider;
+import com.weloveloli.avlib.service.connect.HtmlContentReader;
 import org.mockito.Mockito;
 
 import java.net.URL;
@@ -12,18 +13,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 
-public class JavDBExtractorTest extends TestCase {
-
-    private AVEnvironment environment;
-
+public class JavDBExtractorTest extends BaseTestCase {
     @Override
     protected void setUp() {
-        environment = Mockito.mock(AVEnvironment.class);
         HtmlContentReader reader = Mockito.mock(HtmlContentReader.class);
         Mockito.when(reader.loadFromUrl(String.format("https://javdb4.com/search?q=%s&f=all", "mum-120"))).thenReturn(getContent("javdb/testsearch.html"));
         Mockito.when(reader.loadFromUrl("https://javdb4.com/v/8VvnW?locale=zh")).thenReturn(getContent("javdb/testDetail.html"));
-        Mockito.when((environment.isEnableCache())).thenReturn(false);
-        Mockito.when((environment.getHtmlContentReader())).thenReturn(reader);
+        serviceProvider.registerSingleton(HtmlContentReader.class, reader);
     }
 
     private String getContent(String url) {
@@ -39,7 +35,7 @@ public class JavDBExtractorTest extends TestCase {
 
     public void testGetData() {
         JavDBExtractor javDBExtractor = new JavDBExtractor();
-        javDBExtractor.init(environment);
+        javDBExtractor.init(environment, serviceProvider);
         final Optional<AvData> optionalAvData = javDBExtractor.getData("mum-120");
         assertTrue(optionalAvData.isPresent());
         final AvData avData = optionalAvData.get();

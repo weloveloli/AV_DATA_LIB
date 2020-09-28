@@ -1,20 +1,17 @@
-package com.weloveloli.avlib.tools.cache.impl;
+package com.weloveloli.avlib.service.cache;
 
-import com.weloveloli.avlib.tools.cache.CacheProvider;
+import com.weloveloli.avlib.AVEnvironment;
+import com.weloveloli.avlib.service.ServiceProvider;
 import org.apache.commons.codec.digest.DigestUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Optional;
 
 public class FileCacheProvider implements CacheProvider {
 
-    private final Path cacheDir;
-
-    public FileCacheProvider(Path cacheDir) {
-        this.cacheDir = cacheDir;
-    }
-
+    private Path cacheDir;
 
     @Override
     public boolean contains(String url) {
@@ -40,5 +37,10 @@ public class FileCacheProvider implements CacheProvider {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    @Override
+    public void init(AVEnvironment avEnvironment, ServiceProvider serviceProvider) {
+        this.cacheDir = Optional.ofNullable(avEnvironment.getCachePath()).map(Path::of).orElse(null);
     }
 }

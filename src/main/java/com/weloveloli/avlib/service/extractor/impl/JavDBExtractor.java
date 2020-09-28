@@ -1,10 +1,11 @@
-package com.weloveloli.avlib.extractor.impl;
+package com.weloveloli.avlib.service.extractor.impl;
 
 import com.google.auto.service.AutoService;
 import com.weloveloli.avlib.AVEnvironment;
-import com.weloveloli.avlib.extractor.Extractor;
 import com.weloveloli.avlib.model.AvData;
-import com.weloveloli.avlib.tools.connect.HtmlContentReader;
+import com.weloveloli.avlib.service.ServiceProvider;
+import com.weloveloli.avlib.service.connect.HtmlContentReader;
+import com.weloveloli.avlib.service.extractor.Extractor;
 import org.apache.commons.lang3.StringUtils;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -17,20 +18,12 @@ import java.util.stream.Collectors;
 
 @AutoService(value = Extractor.class)
 public class JavDBExtractor implements Extractor {
-
     public static final String JAVDB = "javdb";
     private static ThreadLocal<String> url = ThreadLocal.withInitial(() -> null);
     private HtmlContentReader htmlContentReader;
     private String baseUrl;
-
-    @Override
-    public String key() {
-        return JAVDB;
-    }
-
     @Override
     public Optional<AvData> getData(String number) {
-
         final JXDocument rootDocument = getRootDocument(number);
         if (rootDocument == null) {
             return Optional.empty();
@@ -106,8 +99,8 @@ public class JavDBExtractor implements Extractor {
     }
 
     @Override
-    public void init(AVEnvironment environment) {
-        this.htmlContentReader = environment.getHtmlContentReader();
+    public void init(AVEnvironment environment, ServiceProvider serviceProvider) {
+        this.htmlContentReader = serviceProvider.getService(HtmlContentReader.class);
         this.baseUrl = "https://javdb4.com";
     }
 
@@ -214,6 +207,9 @@ public class JavDBExtractor implements Extractor {
     }
 
     protected String urlFix(Object content) {
+        if (StringUtils.isBlank(content.toString())) {
+            return StringUtils.EMPTY;
+        }
         final String string = content.toString();
         return string.startsWith("https") ? string : "https:" + content;
     }
