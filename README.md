@@ -2,7 +2,7 @@
 
 [启发项目 AV_Data_Capture](https://github.com/yoshiko2/AV_Data_Capture)
 
-**电影元数据抓取工具，可作为类库使用，并支持命令行方式导出至json文件，或者MySQL数据库。  
+**电影元数据抓取工具，可作为类库使用，并支持命令行方式导出至json文件，或者MySQL数据库**。  
 
 #  声明
 当你运行了本软件，即代表你接受了以下条款
