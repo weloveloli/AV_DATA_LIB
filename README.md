@@ -1,6 +1,8 @@
-![Maven Package](https://github.com/weloveloli/AV_cli/workflows/Maven%20Package/badge.svg)
-
 # AV CLI (CLI)
+
+![Maven Package](https://github.com/weloveloli/AV_cli/workflows/Maven%20Package/badge.svg)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=weloveloli_AV_cli&metric=sqale_rating)](https://sonarcloud.io/dashboard?id=weloveloli_AV_cli)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=weloveloli_AV_cli&metric=coverage)](https://sonarcloud.io/dashboard?id=weloveloli_AV_cli)
 
 [启发项目 AV_Data_Capture](https://github.com/yoshiko2/AV_Data_Capture)
 
