@@ -34,13 +34,11 @@ import java.util.logging.Logger;
 public class DefaultProxySelector implements ProxySelector {
     private AVEnvironment env;
     private List<Proxy> proxies;
-    private Logger log = LoggerFactory.getLogger("DefaultProxySelector");
+    private final Logger log = LoggerFactory.getLogger("DefaultProxySelector");
 
     public boolean isConnected(String name, int port) {
         if (env.isProxyCheck()) {
-            Socket socket;
-            try {
-                socket = new Socket(name, port);
+            try (Socket socket = new Socket(name, port)) {
                 socket.sendUrgentData(0xFF);
                 log.info(String.format("%s:%d is valid", name, port));
                 return true;
