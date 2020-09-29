@@ -93,7 +93,7 @@ public class JavDBExtractor implements Extractor {
         final JXDocument jxDocument = JXDocument.create(searchDocumentInternal);
         /*
            javdb sometime returns multiple results,
-            and the first elememt maybe not the one we are looking for
+            and the first element maybe not the one we are looking for
             iterate all candidates and find the match one
          */
         final List<Object> urls = jxDocument.sel("//*[@id=\"videos\"]/div/div/a/@href");
