@@ -13,28 +13,21 @@
 package com.weloveloli.avlib.service.connect;
 
 import com.weloveloli.avlib.BaseTestCase;
-import com.weloveloli.avlib.service.proxy.DefaultProxySelector;
 import com.weloveloli.avlib.service.proxy.ProxySelector;
-import org.junit.Test;
+import org.mockito.Mockito;
 
 import java.net.Proxy;
-import java.util.List;
 
 /**
  * @author esfak47
  * @date 2020/09/29
  */
 public class DefaultHtmlContentReaderTest extends BaseTestCase {
-
-    private List<String> sock5ProxyList;
-
-    private ProxySelector selector;
-
     @Override
     public void setUp() throws Exception {
-        sock5ProxyList = List.of("117.64.55.8:1080");
-        environment.setProxyType(Proxy.Type.SOCKS.name()).setProxyList(sock5ProxyList).setProxyCheck(true);
-        serviceProvider.registerSingleton(ProxySelector.class, DefaultProxySelector.class);
+        final ProxySelector mock = Mockito.mock(ProxySelector.class);
+        Mockito.when(mock.getProxy()).thenReturn(Proxy.NO_PROXY);
+        serviceProvider.registerSingleton(ProxySelector.class, mock);
         serviceProvider.registerSingleton(HtmlContentReader.class, DefaultHtmlContentReader.class);
     }
 
@@ -42,6 +35,5 @@ public class DefaultHtmlContentReaderTest extends BaseTestCase {
         final DefaultHtmlContentReader service = ((DefaultHtmlContentReader) serviceProvider.getService(HtmlContentReader.class));
         final String s = service.loadFromUrl("https://javdb4.com");
         assertNotNull(s);
-
     }
 }

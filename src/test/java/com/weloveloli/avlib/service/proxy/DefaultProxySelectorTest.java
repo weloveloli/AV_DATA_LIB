@@ -73,5 +73,6 @@ public class DefaultProxySelectorTest extends BaseTestCase {
         defaultProxySelector.init(avEnvironment, serviceProvider);
         final Proxy proxy = defaultProxySelector.getProxy();
         assertNotNull(proxy);
+        System.out.println(proxy.type());
     }
 }
