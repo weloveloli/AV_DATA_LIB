@@ -40,6 +40,8 @@ public class AVEnvironment {
 
     private List<String> proxyList;
 
+    private boolean proxyCheck;
+
     public AVEnvironment() {
         this.enableCache = false;
         this.timeoutInSeconds = 10;
@@ -47,6 +49,7 @@ public class AVEnvironment {
         this.proxyList = Collections.emptyList();
         this.enableCache = false;
         this.cachePath = null;
+        this.proxyCheck = false;
     }
 
     public String getPluginPath() {
@@ -122,6 +125,15 @@ public class AVEnvironment {
 
     public AVEnvironment setCachePath(String cachePath) {
         this.cachePath = cachePath;
+        return this;
+    }
+
+    public boolean isProxyCheck() {
+        return proxyCheck;
+    }
+
+    public AVEnvironment setProxyCheck(boolean proxyCheck) {
+        this.proxyCheck = proxyCheck;
         return this;
     }
 }
