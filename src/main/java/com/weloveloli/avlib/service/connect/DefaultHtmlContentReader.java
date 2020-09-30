@@ -16,12 +16,12 @@ import com.weloveloli.avlib.AVEnvironment;
 import com.weloveloli.avlib.service.ServiceProvider;
 import com.weloveloli.avlib.service.cache.CacheProvider;
 import com.weloveloli.avlib.service.proxy.ProxySelector;
-import com.weloveloli.avlib.utils.LoggerFactory;
 import org.jsoup.Jsoup;
 import org.jsoup.helper.HttpConnection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.logging.Logger;
 
 /**
  * default html content reader
@@ -30,9 +30,7 @@ import java.util.logging.Logger;
  * @date 2020/09/28
  */
 public class DefaultHtmlContentReader implements HtmlContentReader {
-
-
-    private final Logger log = LoggerFactory.getLogger("DefaultHtmlContentReader");
+    private final Logger log = LoggerFactory.getLogger(DefaultHtmlContentReader.class);
     private int timeout;
     private String ua;
     private CacheProvider cacheProvider;
@@ -59,7 +57,7 @@ public class DefaultHtmlContentReader implements HtmlContentReader {
             }
             return body;
         } catch (IOException e) {
-            log.severe(e.getMessage());
+            log.error("get html content failed", e);
             return null;
         }
     }

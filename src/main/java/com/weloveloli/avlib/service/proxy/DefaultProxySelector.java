@@ -14,41 +14,56 @@ package com.weloveloli.avlib.service.proxy;
 
 import com.weloveloli.avlib.AVEnvironment;
 import com.weloveloli.avlib.service.ServiceProvider;
-import com.weloveloli.avlib.utils.LoggerFactory;
-import org.apache.commons.lang3.RandomUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.net.Socket;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
- * default proxy selector
+ * Round-Robin Scheduling proxy selector
  *
  * @author esfak47
  * @date 2020/09/28
  */
 public class DefaultProxySelector implements ProxySelector {
+    private final AtomicInteger next = new AtomicInteger(0);
+    private final Logger log = LoggerFactory.getLogger(DefaultProxySelector.class);
     private AVEnvironment env;
     private List<Proxy> proxies;
-    private final Logger log = LoggerFactory.getLogger("DefaultProxySelector");
 
-    public boolean isConnected(String name, int port) {
+    public Proxy checkProxy(Proxy.Type type, String s) {
+        final String[] split = s.split(":");
+        if (split.length != 2) {
+            return null;
+        }
+        final String hostname = split[0];
+        final int port = Integer.parseInt(split[1]);
+        if (isConnected(hostname, port)) {
+            InetSocketAddress address = new InetSocketAddress(hostname, port);
+            return new Proxy(type, address);
+        }
+        return null;
+    }
+
+    private boolean isConnected(String name, int port) {
         if (env.isProxyCheck()) {
             try (Socket socket = new Socket(name, port)) {
                 socket.sendUrgentData(0xFF);
-                log.info(String.format("%s:%d is valid", name, port));
+                log.debug("{}:{} is valid", name, port);
                 return true;
             } catch (Exception e) {
+                log.warn("{}:{} is invalid, remove from proxy list", name, port);
                 return false;
             }
         }
         return true;
-
-
     }
 
     @Override
@@ -56,8 +71,8 @@ public class DefaultProxySelector implements ProxySelector {
         if (!env.isProxyEnable() || this.proxies.isEmpty()) {
             return Proxy.NO_PROXY;
         }
-        final int nextInt = RandomUtils.nextInt(0, env.getProxyList().size());
-        return proxies.get(nextInt);
+        // Round-Robin
+        return proxies.get(next.getAndIncrement() % this.proxies.size());
     }
 
     @Override
@@ -70,19 +85,22 @@ public class DefaultProxySelector implements ProxySelector {
             } else {
                 type = Proxy.Type.HTTP;
             }
-            proxies = new LinkedList<>();
-            env.getProxyList()
-                    .parallelStream()
-                    .map(s -> s.split(":"))
-                    .filter(split -> split.length == 2)
-                    .forEach(split -> {
-                        final String hostname = split[0];
-                        final int port = Integer.parseInt(split[1]);
-                        if (isConnected(hostname, port)) {
-                            InetSocketAddress address = new InetSocketAddress(hostname, port);
-                            proxies.add(new Proxy(type, address));
-                        }
-                    });
+            final Set<String> collect = new HashSet<>(env.getProxyList());
+            ExecutorService executorService = Executors.newFixedThreadPool(20);
+            try {
+                final List<Future<Proxy>> futures = executorService.invokeAll(collect.stream().map((Function<String, Callable<Proxy>>) s -> () -> checkProxy(type, s)).collect(Collectors.toList()));
+                this.proxies = futures.stream().map(proxyFuture -> {
+                    try {
+                        return proxyFuture.get();
+                    } catch (InterruptedException | ExecutionException e) {
+                        return null;
+                    }
+                }).filter(Objects::nonNull).collect(Collectors.toList());
+                executorService.shutdown();
+            } catch (InterruptedException e) {
+                log.info("check proxy failed");
+                proxies = Collections.emptyList();
+            }
         } else {
             this.proxies = Collections.emptyList();
         }
