@@ -12,6 +12,9 @@
 
 package com.weloveloli.avlib.model;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+
 import java.io.Serializable;
 import java.util.List;
 
@@ -207,25 +210,25 @@ public class AvData implements Serializable {
 
     @Override
     public String toString() {
-        return "AvData{" +
-                "title='" + title + '\'' +
-                ", year='" + year + '\'' +
-                ", number='" + number + '\'' +
-                ", source='" + source + '\'' +
-                ", time='" + time + '\'' +
-                ", release='" + release + '\'' +
-                ", studio='" + studio + '\'' +
-                ", mainCover='" + mainCover + '\'' +
-                ", outline='" + outline + '\'' +
-                ", actors=" + actors +
-                ", labels=" + labels +
-                ", tags=" + tags +
-                ", covers=" + covers +
-                ", series=" + series +
-                ", directors=" + directors +
-                ", magnets=" + magnets +
-                ", webSiteUrl='" + webSiteUrl + '\'' +
-                ", previewVideo='" + previewVideo + '\'' +
-                '}';
+        return new ToStringBuilder(this, ToStringStyle.MULTI_LINE_STYLE)
+                .append("title", title)
+                .append("year", year)
+                .append("number", number)
+                .append("source", source)
+                .append("time", time)
+                .append("release", release)
+                .append("studio", studio)
+                .append("mainCover", mainCover)
+                .append("outline", outline)
+                .append("actors", actors)
+                .append("labels", labels)
+                .append("tags", tags)
+                .append("covers", covers)
+                .append("series", series)
+                .append("directors", directors)
+                .append("magnets", magnets)
+                .append("webSiteUrl", webSiteUrl)
+                .append("previewVideo", previewVideo)
+                .toString();
     }
 }

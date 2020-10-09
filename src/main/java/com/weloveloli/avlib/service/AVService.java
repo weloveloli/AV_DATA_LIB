@@ -28,4 +28,5 @@ public interface AVService {
      * @param serviceProvider service provider
      */
     void init(AVEnvironment avEnvironment, ServiceProvider serviceProvider);
+
 }
