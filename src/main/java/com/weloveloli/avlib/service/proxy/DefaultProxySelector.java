@@ -93,12 +93,15 @@ public class DefaultProxySelector implements ProxySelector {
                     try {
                         return proxyFuture.get();
                     } catch (InterruptedException | ExecutionException e) {
+                        log.error("check proxy failed", e);
+                        Thread.currentThread().interrupt();
                         return null;
                     }
                 }).filter(Objects::nonNull).collect(Collectors.toList());
                 executorService.shutdown();
             } catch (InterruptedException e) {
-                log.info("check proxy failed");
+                log.info("check proxy failed", e);
+                Thread.currentThread().interrupt();
                 proxies = Collections.emptyList();
             }
         } else {
