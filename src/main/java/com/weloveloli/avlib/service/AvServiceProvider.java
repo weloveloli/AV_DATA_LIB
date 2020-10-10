@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
  */
 public class AvServiceProvider implements ServiceProvider {
 
-    private final Multimap<Class<? extends AVService>, ServiceDefinition> serviceDefinitionMap;
+    private final Multimap<Class<? extends AVService>, ServiceDefinition<? extends AVService>> serviceDefinitionMap;
     private final Map<Class<? extends AVService>, AVService> singleton;
     private final AVEnvironment environment;
 
@@ -40,16 +40,17 @@ public class AvServiceProvider implements ServiceProvider {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public <T extends AVService> T getService(String name, Class<T> clazz) {
         if (!serviceDefinitionMap.containsKey(clazz)) {
             return null;
         }
-        final Collection<ServiceDefinition> serviceDefinitions = serviceDefinitionMap.get(clazz);
-        final Optional<ServiceDefinition> first = serviceDefinitions.stream().filter(serviceDefinition -> serviceDefinition.name.equals(name)).findFirst();
+        final Collection<ServiceDefinition<? extends AVService>> serviceDefinitions = serviceDefinitionMap.get(clazz);
+        final Optional<ServiceDefinition<? extends AVService>> first = serviceDefinitions.stream().filter(serviceDefinition -> serviceDefinition.name.equals(name)).findFirst();
         if (first.isEmpty()) {
             return null;
         }
-        ServiceDefinition<T> serviceDefinition = first.get();
+        ServiceDefinition<T> serviceDefinition = (ServiceDefinition<T>) first.get();
 
         if (serviceDefinition.isSingleton) {
             return (T) singleton.get(serviceDefinition.clazz);
@@ -64,12 +65,13 @@ public class AvServiceProvider implements ServiceProvider {
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T extends AVService> Collection<T> getServices(Class<T> clazz) {
         if (!serviceDefinitionMap.containsKey(clazz)) {
             return null;
         }
-        final Collection<ServiceDefinition> serviceDefinitions = serviceDefinitionMap.get(clazz);
+        final Collection<ServiceDefinition<? extends AVService>> serviceDefinitions = serviceDefinitionMap.get(clazz);
         final AvServiceProvider avServiceProvider = this;
         return serviceDefinitions.stream().map(serviceDefinition -> {
             if (serviceDefinition.isSingleton) {
@@ -94,6 +96,7 @@ public class AvServiceProvider implements ServiceProvider {
         registerSingleton(rClass, impl, rClass.getSimpleName());
     }
 
+    @SuppressWarnings("unchecked")
     public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, T impl, String name) {
         final ServiceDefinition<T> serviceDefinition = new ServiceDefinition<>(true, (Class<T>) impl.getClass(), name);
         serviceDefinitionMap.put(rClass, serviceDefinition);
@@ -123,12 +126,6 @@ public class AvServiceProvider implements ServiceProvider {
         private final boolean isSingleton;
         private final Class<T> clazz;
         private final String name;
-
-        public ServiceDefinition(boolean isSingleton, Class<T> clazz) {
-            this.isSingleton = isSingleton;
-            this.clazz = clazz;
-            this.name = clazz.getSimpleName();
-        }
 
         public ServiceDefinition(boolean isSingleton, Class<T> clazz, String name) {
             this.isSingleton = isSingleton;
