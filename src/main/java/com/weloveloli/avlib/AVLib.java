@@ -12,6 +12,13 @@
 
 package com.weloveloli.avlib;
 
+import com.weloveloli.avlib.model.AvData;
+import com.weloveloli.avlib.service.ServiceProvider;
+import com.weloveloli.avlib.service.extractor.Extractor;
+
+import java.util.Collection;
+import java.util.Optional;
+
 /**
  * av lib
  *
@@ -20,17 +27,29 @@ package com.weloveloli.avlib;
  */
 public class AVLib {
 
-    private AVLib() {
+    private ServiceProvider serviceProvider;
 
+    private AVEnvironment env;
+
+    private AVLib(ServiceProvider serviceProvider, AVEnvironment avEnvironment) {
+        this.serviceProvider = serviceProvider;
+        this.env = avEnvironment;
     }
 
-    public static AVLib of() {
-        return new AVLib();
+    public static AVLib of(ServiceProvider serviceProvider, AVEnvironment avEnvironment) {
+        return new AVLib(serviceProvider, avEnvironment);
     }
 
-    public void start() {
-
+    public Optional<AvData> number(String number) {
+        final Collection<Extractor> services = serviceProvider.getServices(Extractor.class);
+        Optional<AvData> data = Optional.empty();
+        for (Extractor service : services) {
+            data = service.getData(number);
+            if (data.isPresent()) {
+                return data;
+            }
+        }
+        return data;
     }
-
 
 }

@@ -12,12 +12,14 @@
 
 package com.weloveloli.avlib.service;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.weloveloli.avlib.AVEnvironment;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * av service provider
@@ -27,27 +29,34 @@ import java.util.Map;
  */
 public class AvServiceProvider implements ServiceProvider {
 
-    private final Map<Class, ServiceDefinition> serviceDefinitionMap;
-    private final Map<Class, Object> singleton;
+    private final Multimap<Class<? extends AVService>, ServiceDefinition<? extends AVService>> serviceDefinitionMap;
+    private final Map<Class<? extends AVService>, AVService> singleton;
     private final AVEnvironment environment;
 
     public AvServiceProvider(AVEnvironment avEnvironment) {
-        this.serviceDefinitionMap = new HashMap<>();
+        this.serviceDefinitionMap = HashMultimap.create();
         singleton = new HashMap<>();
         this.environment = avEnvironment;
     }
 
     @Override
-    public <T extends AVService> T getService(Class<T> clazz) {
+    @SuppressWarnings("unchecked")
+    public <T extends AVService> T getService(String name, Class<T> clazz) {
         if (!serviceDefinitionMap.containsKey(clazz)) {
             return null;
         }
-        final ServiceDefinition serviceDefinition = serviceDefinitionMap.get(clazz);
+        final Collection<ServiceDefinition<? extends AVService>> serviceDefinitions = serviceDefinitionMap.get(clazz);
+        final Optional<ServiceDefinition<? extends AVService>> first = serviceDefinitions.stream().filter(serviceDefinition -> serviceDefinition.name.equals(name)).findFirst();
+        if (first.isEmpty()) {
+            return null;
+        }
+        ServiceDefinition<T> serviceDefinition = (ServiceDefinition<T>) first.get();
+
         if (serviceDefinition.isSingleton) {
-            return (T) singleton.get(clazz);
+            return (T) singleton.get(serviceDefinition.clazz);
         } else {
             try {
-                final T newInstance = (T) serviceDefinition.clazz.getDeclaredConstructor().newInstance();
+                final T newInstance = serviceDefinition.clazz.getDeclaredConstructor().newInstance();
                 newInstance.init(environment, this);
                 return newInstance;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
@@ -56,27 +65,59 @@ public class AvServiceProvider implements ServiceProvider {
         }
     }
 
-    public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, Class<T> impl) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        register(rClass, new ServiceDefinition<>(true, impl));
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends AVService> Collection<T> getServices(Class<T> clazz) {
+        if (!serviceDefinitionMap.containsKey(clazz)) {
+            return null;
+        }
+        final Collection<ServiceDefinition<? extends AVService>> serviceDefinitions = serviceDefinitionMap.get(clazz);
+        final AvServiceProvider avServiceProvider = this;
+        return serviceDefinitions.stream().map(serviceDefinition -> {
+            if (serviceDefinition.isSingleton) {
+                return (T) singleton.get(serviceDefinition.clazz);
+            } else {
+                try {
+                    final T newInstance = (T) serviceDefinition.clazz.getDeclaredConstructor().newInstance();
+                    newInstance.init(environment, avServiceProvider);
+                    return newInstance;
+                } catch (InstantiationException | IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+                    return null;
+                }
+            }
+        }).filter(Objects::nonNull).collect(Collectors.toSet());
+    }
+
+    public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, Class<T> impl, String name) {
+        register(rClass, new ServiceDefinition<>(true, impl, name));
+    }
+
+    public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, Class<T> impl) {
+        registerSingleton(rClass, impl, rClass.getSimpleName());
+    }
+
+    @SuppressWarnings("unchecked")
+    public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, T impl, String name) {
+        final ServiceDefinition<T> serviceDefinition = new ServiceDefinition<>(true, (Class<T>) impl.getClass(), name);
+        serviceDefinitionMap.put(rClass, serviceDefinition);
+        singleton.put(impl.getClass(), impl);
     }
 
     public <R extends AVService, T extends R> void registerSingleton(Class<R> rClass, T impl) {
-        final ServiceDefinition<T> serviceDefinition = new ServiceDefinition<T>(true, (Class<T>) impl.getClass());
-        serviceDefinitionMap.put(rClass, serviceDefinition);
-        singleton.put(rClass, impl);
+        registerSingleton(rClass, impl, rClass.getSimpleName());
     }
 
-    public <R extends AVService, T extends R> void registerNonSingleton(Class<R> rClass, Class<T> impl) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        register(rClass, new ServiceDefinition<>(false, impl));
-    }
-
-    public <R extends AVService, T extends R> void register(Class<R> rClass, ServiceDefinition<T> definition) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        serviceDefinitionMap.put(rClass, definition);
-        final Constructor<T> declaredConstructor = definition.clazz.getDeclaredConstructor();
-        if (definition.isSingleton) {
-            final T newInstance = declaredConstructor.newInstance();
-            newInstance.init(environment, this);
-            singleton.put(rClass, newInstance);
+    public <R extends AVService, T extends R> void register(Class<R> rClass, ServiceDefinition<T> definition) {
+        try {
+            serviceDefinitionMap.put(rClass, definition);
+            final Constructor<T> declaredConstructor = definition.clazz.getDeclaredConstructor();
+            if (definition.isSingleton) {
+                final T newInstance = declaredConstructor.newInstance();
+                newInstance.init(environment, this);
+                singleton.put(newInstance.getClass(), newInstance);
+            }
+        } catch (Exception e) {
+            throw new IllegalArgumentException(e);
         }
     }
 
@@ -84,10 +125,16 @@ public class AvServiceProvider implements ServiceProvider {
     public static class ServiceDefinition<T extends AVService> {
         private final boolean isSingleton;
         private final Class<T> clazz;
+        private final String name;
 
-        public ServiceDefinition(boolean isSingleton, Class<T> clazz) {
+        public ServiceDefinition(boolean isSingleton, Class<T> clazz, String name) {
             this.isSingleton = isSingleton;
             this.clazz = clazz;
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
         }
     }
 }

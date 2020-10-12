@@ -105,6 +105,9 @@ public class JavDBExtractor implements Extractor {
                 url = (String) urls.get(i);
             }
         }
+        if (url == null) {
+            return null;
+        }
         return this.baseUrl + url + "?locale=zh";
     }
 

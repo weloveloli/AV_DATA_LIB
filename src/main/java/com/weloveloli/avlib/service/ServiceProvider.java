@@ -12,6 +12,8 @@
 
 package com.weloveloli.avlib.service;
 
+import java.util.Collection;
+
 /**
  * ServiceProvider
  *
@@ -26,6 +28,17 @@ public interface ServiceProvider {
      * @param <T>   class template
      * @return the instance of class type T
      */
-    <T extends AVService> T getService(Class<T> clazz);
+    default <T extends AVService> T getService(Class<T> clazz) {
+        if (clazz != null) {
+            return getService(clazz.getSimpleName(), clazz);
+        }
+        return null;
+    }
+
+    <T extends AVService> T getService(String name, Class<T> clazz);
+
+
+    <T extends AVService> Collection<T> getServices(Class<T> clazz);
+
 
 }
